@@ -28,6 +28,8 @@
 			<Add option="`wx-config --libs`" />
 			<Add option="`wx-config --gl-libs`" />
 		</Linker>
+		<Unit filename="BasicGLCanvas.cpp" />
+		<Unit filename="BasicGLCanvas.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />

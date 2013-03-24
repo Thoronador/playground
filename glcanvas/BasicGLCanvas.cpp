@@ -13,27 +13,11 @@ EVT_MOUSEWHEEL(BasicGLCanvas::mouseWheelMoved)
 EVT_PAINT(BasicGLCanvas::render)
 END_EVENT_TABLE()
 
-// Vertices and faces of a simple cube to demonstrate 3D render
-// source: http://www.opengl.org/resources/code/samples/glut_examples/examples/cube.c
-GLfloat v[8][3];
-GLint faces[6][4] = {  /* Vertex indices for the 6 faces of a cube. */
-    {0, 1, 2, 3}, {3, 2, 6, 7}, {7, 6, 5, 4},
-    {4, 5, 1, 0}, {5, 6, 2, 1}, {7, 4, 0, 3} };
-
-
 
 BasicGLCanvas::BasicGLCanvas(wxFrame* parent, int* args) :
     wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
 	m_Context = new wxGLContext(this);
-    // prepare a simple cube to demonstrate 3D render
-    // source: http://www.opengl.org/resources/code/samples/glut_examples/examples/cube.c
-    v[0][0] = v[1][0] = v[2][0] = v[3][0] = -1;
-    v[4][0] = v[5][0] = v[6][0] = v[7][0] = 1;
-    v[0][1] = v[1][1] = v[4][1] = v[5][1] = -1;
-    v[2][1] = v[3][1] = v[6][1] = v[7][1] = 1;
-    v[0][2] = v[3][2] = v[4][2] = v[7][2] = 1;
-    v[1][2] = v[2][2] = v[5][2] = v[6][2] = -1;
 
     // To avoid flashing on MSW
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
@@ -44,18 +28,18 @@ BasicGLCanvas::~BasicGLCanvas()
 	delete m_Context;
 }
 
-int BasicGLCanvas::getWidth()
+int BasicGLCanvas::getWidth() const
 {
   return GetSize().x;
 }
 
-int BasicGLCanvas::getHeight()
+int BasicGLCanvas::getHeight() const
 {
   return GetSize().y;
 }
 
 /** Inits the OpenGL viewport for drawing in 3D. */
-void BasicGLCanvas::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
+void BasicGLCanvas::prepare3DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y) const
 {
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
@@ -78,7 +62,7 @@ void BasicGLCanvas::prepare3DViewport(int topleft_x, int topleft_y, int bottomri
 }
 
 /** Inits the OpenGL viewport for drawing in 2D. */
-void BasicGLCanvas::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
+void BasicGLCanvas::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y) const
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
     glEnable(GL_TEXTURE_2D);   // textures
@@ -157,6 +141,8 @@ void BasicGLCanvas::render( wxPaintEvent& evt )
     prepare2DViewport(0,0,getWidth()/2, getHeight());
     glLoadIdentity();
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
     // white background
     glColor4f(1, 1, 1, 1);
     glBegin(GL_QUADS);
@@ -184,16 +170,12 @@ void BasicGLCanvas::render( wxPaintEvent& evt )
     glRotatef(50.0f, 0.0f, 1.0f, 0.0f);
 
     glColor4f(1, 0, 0, 1);
-    for (int i = 0; i < 6; i++)
+    GLUquadric * sphere = gluNewQuadric();
+    if (sphere!=0)
     {
-        glBegin(GL_LINE_STRIP);
-        glVertex3fv(&v[faces[i][0]][0]);
-        glVertex3fv(&v[faces[i][1]][0]);
-        glVertex3fv(&v[faces[i][2]][0]);
-        glVertex3fv(&v[faces[i][3]][0]);
-        glVertex3fv(&v[faces[i][0]][0]);
-        glEnd();
-    }
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+      gluSphere(sphere, 1.25, 12, 6);
+    }//sphere
 
     glFlush();
     SwapBuffers();
